@@ -8,7 +8,42 @@ function Button({text, type}){
   )
 }
 
+function TaskList({tasks}){
+  return(
+    <>
+    <h2>Tasks</h2>
+    <div className="list">
+      {tasks.map((task, index) => (
+        <div className="division" key={index}>
+          {task.isEditing ? (
+              <>
+                <input type="text" defaultValue={task.name} placeholder="Edit task" />
+                <Button text="Apply" type="brightButton"/>
+              </>
+            ) : (
+              <>
+                <span>{task.name}</span>
+                <Button text="Delete" type="darkButton"/>
+                <Button text="Edit" type="darkButton"/>
+                <input type="checkbox" checked={task.status === 'Done'} />
+              </>
+            )}
+          </div>
+        ))}
+    </div>
+
+    
+    </>
+  )
+}
+
+
 function App(){
+  const taskss= [
+    { name: 'Task 1', status: 'In Progress', isEditing: false },
+    { name: 'Task 2', status: 'Done', isEditing: false },
+    { name: 'Task 3', status: 'In Progress', isEditing: true },
+  ];
   return(
     <>
     <h1>TODO LIST</h1>
@@ -26,6 +61,7 @@ function App(){
       <Button text="in Progress" type="darkButton"/>
       <Button text="All" type="darkButton"/>
     </div>
+    <TaskList tasks={taskss}/>
     </>
   );
 };
