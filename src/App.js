@@ -1,42 +1,10 @@
-
-import React from 'react';
-import { useState ,useEffect } from 'react';
-
+import React, { useState, useEffect } from 'react';
 import './styles.css';
 
-function Button({text, type,onClick}){
+function Button({ text, type, onClick }) {
   return (
     <button className={type} onClick={onClick}>{text}</button>
-  )
-}
-
-function TaskList({tasks}){
-  return(
-    <>
-    <h2>Tasks</h2>
-    <div className="list">
-      {tasks.map((task, index) => (
-        <div className="division" key={index}>
-          {task.isEditing ? (
-              <>
-                <input type="text" defaultValue={task.name} placeholder="Edit task" />
-                <Button text="Apply" type="brightButton"/>
-              </>
-            ) : (
-              <>
-                <span>{task.name}</span>
-                <Button text="Delete" type="darkButton"/>
-                <Button text="Edit" type="darkButton"/>
-                <input type="checkbox" checked={task.status === 'Done'} />
-              </>
-            )}
-          </div>
-        ))}
-    </div>
-
-    
-    </>
-  )
+  );
 }
 
 function SearchBar({
@@ -47,68 +15,141 @@ function SearchBar({
 }) {
   return (
     <div className='division'>
-    <form>
-      <input 
-        type="text" 
-        value={filterText} placeholder="Search..." 
-        onChange={(e) => onFilterTextChange(e.target.value)} />
-        <br></br>
-      <label>
-        <input 
-          type="checkbox" 
-          checked={inProgressOnly} 
-          onChange={(e) => onInProgressOnlyChange(e.target.checked)} />
-        {' '}
-        Only show tasks in Progress
-      </label>
-    </form>
+      <form>
+        <input
+          type="text"
+          value={filterText}
+          placeholder="Search..."
+          onChange={(e) => onFilterTextChange(e.target.value)}
+        />
+        <br />
+        <label>
+          <input
+            type="checkbox"
+            checked={inProgressOnly}
+            onChange={(e) => onInProgressOnlyChange(e.target.checked)}
+          />
+          {' '}
+          Only show tasks in Progress
+        </label>
+      </form>
     </div>
   );
 }
 
-function AddForm({addInput, setAddInput,addTask}){
-  return(
-    <div class="division">
-      <input type="text" value={addInput} placeholder="Add task..." 
-        onChange={(e) => setAddInput(e.target.value)}/>
-        <Button text="Add Task" type="brightButton" onClick={addTask}/>
+function AddForm({ addInput, setAddInput, addTask }) {
+  return (
+    <div className="division">
+      <input
+        type="text"
+        value={addInput}
+        placeholder="Add task..."
+        onChange={(e) => setAddInput(e.target.value)}
+      />
+      <Button text="Add Task" type="brightButton" onClick={addTask} />
     </div>
-  )
-
+  );
 }
-function App(){
+
+function TaskList({ tasks, deleteTask, startEdit, applyEdit }) {
+  const [editedTaskIndex, setEditedTaskIndex] = useState(null);
+  const [editedTaskName, setEditedTaskName] = useState('');
+
+  const handleEditStart = (index) => {
+    setEditedTaskIndex(index);
+    setEditedTaskName(tasks[index].name); // Set the name of the task to edit
+  };
+
+  const handleApplyEdit = (index) => {
+    applyEdit(index, editedTaskName);
+    setEditedTaskIndex(null); // Reset editing state after applying edit
+  };
+
+  return (
+    <>
+      <h2>Tasks</h2>
+      <div className="list">
+        {tasks.map((task, index) => (
+          <div className="division" key={index}>
+            {editedTaskIndex === index ? (
+              <>
+                <input
+                  type="text"
+                  value={editedTaskName}
+                  onChange={(e) => setEditedTaskName(e.target.value)}
+                  placeholder="Edit task"
+                />
+                <Button text="Apply" type="brightButton" onClick={() => handleApplyEdit(index)} />
+              </>
+            ) : (
+              <>
+                <span>{task.name}</span>
+                <Button text="Delete" type="darkButton" onClick={() => deleteTask(index)} />
+                <Button text="Edit" type="darkButton" onClick={() => handleEditStart(index)} />
+                <input type="checkbox" checked={task.status === 'Done'} readOnly />
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function App() {
   const [filterText, setFilterText] = useState('');
   const [inProgressOnly, setInProgressOnly] = useState(false);
   const [addInput, setAddInput] = useState('');
 
   const [tasks, setTasks] = useState(() => {
-    // Load tasks from local storage if available
     const savedTasks = localStorage.getItem('tasks');
     return savedTasks ? JSON.parse(savedTasks) : [];
   });
+
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
+
   const addTask = () => {
     if (addInput.trim()) {
       setTasks([...tasks, { name: addInput, status: 'In Progress', isEditing: false }]);
       setAddInput('');
     }
   };
-  return(
+
+  const deleteTask = (index) => {
+    setTasks(tasks.filter((_, i) => i !== index));
+  };
+
+  const startEdit = (index) => {
+    const updatedTasks = tasks.map((task, i) =>
+      i === index ? { ...task, isEditing: true } : task
+    );
+    setTasks(updatedTasks);
+  };
+
+  const applyEdit = (index, editedTask) => {
+    const updatedTasks = tasks.map((task, i) =>
+      i === index ? { ...task, name: editedTask, isEditing: false } : task
+    );
+    setTasks(updatedTasks);
+  };
+
+  return (
     <>
-    <div id="app_island">
-    <h1 id="app_title">TODO LIST</h1>
-    <AddForm addInput={addInput} setAddInput={setAddInput} addTask={addTask}/>
-    <SearchBar 
-        filterText={filterText} 
-        inProgressOnly={inProgressOnly} 
-        onFilterTextChange={setFilterText} 
-        onInProgressOnlyChange={setInProgressOnly} />
-    <TaskList tasks={tasks}/>
-    </div>
+      <div id="app_island">
+        <h1 id="app_title">TODO LIST</h1>
+        <AddForm addInput={addInput} setAddInput={setAddInput} addTask={addTask} />
+        <SearchBar
+          filterText={filterText}
+          inProgressOnly={inProgressOnly}
+          onFilterTextChange={setFilterText}
+          onInProgressOnlyChange={setInProgressOnly}
+        />
+        <TaskList tasks={tasks} deleteTask={deleteTask} startEdit={startEdit} applyEdit={applyEdit} />
+      </div>
     </>
   );
-};
+}
 
 export default App;
