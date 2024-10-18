@@ -46,6 +46,7 @@ function App(){
   ];
   return(
     <>
+    <div className="app_island">
     <h1>TODO LIST</h1>
     <div class="division">
       <Button text="Search" type="darkButton"/>
@@ -62,6 +63,7 @@ function App(){
       <Button text="All" type="darkButton"/>
     </div>
     <TaskList tasks={taskss}/>
+    </div>
     </>
   );
 };
