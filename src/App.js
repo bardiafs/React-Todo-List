@@ -1,5 +1,7 @@
 
 import React from 'react';
+import { useState } from 'react';
+
 import './styles.css';
 
 function Button({text, type}){
@@ -37,8 +39,48 @@ function TaskList({tasks}){
   )
 }
 
+function SearchBar({
+  filterText,
+  inProgressOnly,
+  onFilterTextChange,
+  onInProgressOnlyChange
+}) {
+  return (
+    <div className='division'>
+    <form>
+      <input 
+        type="text" 
+        value={filterText} placeholder="Search..." 
+        onChange={(e) => onFilterTextChange(e.target.value)} />
+        <br></br>
+      <label>
+        <input 
+          type="checkbox" 
+          checked={inProgressOnly} 
+          onChange={(e) => onInProgressOnlyChange(e.target.checked)} />
+        {' '}
+        Only show tasks in Progress
+      </label>
+    </form>
+    </div>
+  );
+}
 
+function AddForm(){
+  const [addInput, setAddInput] = useState('');
+  return(
+    <div class="division">
+      <input type="text" value={addInput} placeholder="Add task..." 
+        onChange={(e) => setAddInput(e.target.value)}/>
+      <Button text="Add Task" type="brightButton"/>
+    </div>
+  )
+
+}
 function App(){
+  const [filterText, setFilterText] = useState('');
+  const [inProgressOnly, setInProgressOnly] = useState(false);
+
   const taskss= [
     { name: 'Task 1', status: 'In Progress', isEditing: false },
     { name: 'Task 2', status: 'Done', isEditing: false },
@@ -47,21 +89,13 @@ function App(){
   return(
     <>
     <div id="app_island">
-    <h1>TODO LIST</h1>
-    <div class="division">
-      <Button text="Search" type="darkButton"/>
-      <Button text="New Task" type="brightButton"/>
-    </div>
-    <div class="division">
-      <input type="text" placeholder="Search for tasks..." />
-      <Button text="Go" type="brightButton"/>
-    </div>
-    <div class="division">
-      <span>Filters:   </span>
-      <Button text="Done" type="darkButton"/>
-      <Button text="in Progress" type="darkButton"/>
-      <Button text="All" type="darkButton"/>
-    </div>
+    <h1 id="app_title">TODO LIST</h1>
+    <AddForm/>
+    <SearchBar 
+        filterText={filterText} 
+        inProgressOnly={inProgressOnly} 
+        onFilterTextChange={setFilterText} 
+        onInProgressOnlyChange={setInProgressOnly} />
     <TaskList tasks={taskss}/>
     </div>
     </>
