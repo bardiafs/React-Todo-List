@@ -51,7 +51,7 @@ function AddForm({ addInput, setAddInput, addTask }) {
   );
 }
 
-function TaskList({ tasks, deleteTask, startEdit, applyEdit }) {
+function TaskList({ tasks, setTasks,deleteTask, startEdit, applyEdit }) {
   const [editedTaskIndex, setEditedTaskIndex] = useState(null);
   const [editedTaskName, setEditedTaskName] = useState('');
 
@@ -86,7 +86,12 @@ function TaskList({ tasks, deleteTask, startEdit, applyEdit }) {
                 <span>{task.name}</span>
                 <Button text="Delete" type="darkButton" onClick={() => deleteTask(index)} />
                 <Button text="Edit" type="darkButton" onClick={() => handleEditStart(index)} />
-                <input type="checkbox" checked={task.status === 'Done'} readOnly />
+                <input type="checkbox" checked={task.status === 'Done'} onChange={() => {
+                    const updatedTasks = tasks.map((t, i) =>
+                      i === index ? { ...t, status: t.status === 'Done' ? 'In Progress' : 'Done' } : t
+                    );
+                    setTasks(updatedTasks);
+                }} />
               </>
             )}
           </div>
@@ -146,7 +151,7 @@ function App() {
           onFilterTextChange={setFilterText}
           onInProgressOnlyChange={setInProgressOnly}
         />
-        <TaskList tasks={tasks} deleteTask={deleteTask} startEdit={startEdit} applyEdit={applyEdit} />
+        <TaskList tasks={tasks} setTasks={setTasks} deleteTask={deleteTask} startEdit={startEdit} applyEdit={applyEdit} />
       </div>
     </>
   );
