@@ -51,7 +51,8 @@ function AddForm({ addInput, setAddInput, addTask }) {
   );
 }
 
-function TaskList({ tasks, setTasks,deleteTask, startEdit, applyEdit }) {
+function TaskList({ tasks, setTasks,deleteTask, startEdit, applyEdit,filterText,
+  InProgressOnly }) {
   const [editedTaskIndex, setEditedTaskIndex] = useState(null);
   const [editedTaskName, setEditedTaskName] = useState('');
 
@@ -70,31 +71,37 @@ function TaskList({ tasks, setTasks,deleteTask, startEdit, applyEdit }) {
       <h2>Tasks</h2>
       <div className="list">
         {tasks.map((task, index) => (
-          <div className="division" key={index}>
-            {editedTaskIndex === index ? (
-              <>
-                <input
-                  type="text"
-                  value={editedTaskName}
-                  onChange={(e) => setEditedTaskName(e.target.value)}
-                  placeholder="Edit task"
-                />
-                <Button text="Apply" type="brightButton" onClick={() => handleApplyEdit(index)} />
-              </>
-            ) : (
-              <>
-                <span>{task.name}</span>
-                <Button text="Delete" type="darkButton" onClick={() => deleteTask(index)} />
-                <Button text="Edit" type="darkButton" onClick={() => handleEditStart(index)} />
-                <input type="checkbox" checked={task.status === 'Done'} onChange={() => {
-                    const updatedTasks = tasks.map((t, i) =>
-                      i === index ? { ...t, status: t.status === 'Done' ? 'In Progress' : 'Done' } : t
-                    );
-                    setTasks(updatedTasks);
-                }} />
-              </>
-            )}
-          </div>
+          task.name.toLowerCase().indexOf(filterText.toLowerCase()) !== -1 && (
+            <div className="division" key={index}>
+              {editedTaskIndex === index ? (
+                <>
+                  <input
+                    type="text"
+                    value={editedTaskName}
+                    onChange={(e) => setEditedTaskName(e.target.value)}
+                    placeholder="Edit task"
+                  />
+                  <Button text="Apply" type="brightButton" onClick={() => handleApplyEdit(index)} />
+                </>
+              ) : (
+                <>
+                  <span>{task.name}</span>
+                  <Button text="Delete" type="darkButton" onClick={() => deleteTask(index)} />
+                  <Button text="Edit" type="darkButton" onClick={() => handleEditStart(index)} />
+                  <input
+                    type="checkbox"
+                    checked={task.status === 'Done'}
+                    onChange={() => {
+                      const updatedTasks = tasks.map((t, i) =>
+                        i === index ? { ...t, status: t.status === 'Done' ? 'In Progress' : 'Done' } : t
+                      );
+                      setTasks(updatedTasks);
+                    }}
+                  />
+                </>
+              )}
+            </div>
+          )
         ))}
       </div>
     </>
@@ -151,7 +158,13 @@ function App() {
           onFilterTextChange={setFilterText}
           onInProgressOnlyChange={setInProgressOnly}
         />
-        <TaskList tasks={tasks} setTasks={setTasks} deleteTask={deleteTask} startEdit={startEdit} applyEdit={applyEdit} />
+        <TaskList tasks={tasks} 
+        setTasks={setTasks} 
+        deleteTask={deleteTask} 
+        startEdit={startEdit} 
+        applyEdit={applyEdit} 
+        filterText={filterText}
+        inProgressOnly={inProgressOnly}/>
       </div>
     </>
   );
