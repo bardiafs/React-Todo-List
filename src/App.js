@@ -160,7 +160,7 @@ function App() {
   };
 
   return (
-    <>
+    <body>
       <div id="app_island">
         <h1 id="app_title">TODO LIST</h1>
         <AddForm addInput={addInput} setAddInput={setAddInput} addTask={addTask} />
@@ -178,7 +178,7 @@ function App() {
         filterText={filterText}
         inProgressOnly={inProgressOnly}/>
       </div>
-    </>
+    </body>
   );
 }
 
