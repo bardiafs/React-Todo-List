@@ -52,7 +52,7 @@ function AddForm({ addInput, setAddInput, addTask }) {
 }
 
 function TaskList({ tasks, setTasks,deleteTask, startEdit, applyEdit,filterText,
-  InProgressOnly }) {
+  inProgressOnly }) {
   const [editedTaskIndex, setEditedTaskIndex] = useState(null);
   const [editedTaskName, setEditedTaskName] = useState('');
 
@@ -70,39 +70,51 @@ function TaskList({ tasks, setTasks,deleteTask, startEdit, applyEdit,filterText,
     <>
       <h2>Tasks</h2>
       <div className="list">
-        {tasks.map((task, index) => (
-          task.name.toLowerCase().indexOf(filterText.toLowerCase()) !== -1 && (
-            <div className="division" key={index}>
-              {editedTaskIndex === index ? (
-                <>
-                  <input
-                    type="text"
-                    value={editedTaskName}
-                    onChange={(e) => setEditedTaskName(e.target.value)}
-                    placeholder="Edit task"
-                  />
-                  <Button text="Apply" type="brightButton" onClick={() => handleApplyEdit(index)} />
-                </>
-              ) : (
-                <>
-                  <span>{task.name}</span>
-                  <Button text="Delete" type="darkButton" onClick={() => deleteTask(index)} />
-                  <Button text="Edit" type="darkButton" onClick={() => handleEditStart(index)} />
-                  <input
-                    type="checkbox"
-                    checked={task.status === 'Done'}
-                    onChange={() => {
-                      const updatedTasks = tasks.map((t, i) =>
-                        i === index ? { ...t, status: t.status === 'Done' ? 'In Progress' : 'Done' } : t
-                      );
-                      setTasks(updatedTasks);
-                    }}
-                  />
-                </>
-              )}
-            </div>
-          )
-        ))}
+        {tasks.map((task, index) => {
+          // Check if we should filter by in-progress status
+          const shouldRenderTask = !inProgressOnly || (inProgressOnly && task.status === 'In Progress');
+  
+          // Check if the task name contains the filter text
+          const matchesFilterText = task.name.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
+  
+          // Render the task only if it matches both conditions
+          if (shouldRenderTask && matchesFilterText) {
+            return (
+              <div className="division" key={index}>
+                {editedTaskIndex === index ? (
+                  <>
+                    <input
+                      type="text"
+                      value={editedTaskName}
+                      onChange={(e) => setEditedTaskName(e.target.value)}
+                      placeholder="Edit task"
+                    />
+                    <Button text="Apply" type="brightButton" onClick={() => handleApplyEdit(index)} />
+                  </>
+                ) : (
+                  <>
+                    <span>{task.name}</span>
+                    <Button text="Delete" type="darkButton" onClick={() => deleteTask(index)} />
+                    <Button text="Edit" type="darkButton" onClick={() => handleEditStart(index)} />
+                    <input
+                      type="checkbox"
+                      checked={task.status === 'Done'}
+                      onChange={() => {
+                        const updatedTasks = tasks.map((t, i) =>
+                          i === index ? { ...t, status: t.status === 'Done' ? 'In Progress' : 'Done' } : t
+                        );
+                        setTasks(updatedTasks);
+                      }}
+                    />
+                  </>
+                )}
+              </div>
+            );
+          }
+  
+          // If conditions are not met, return null (or nothing) to skip rendering this task
+          return null;
+        })}
       </div>
     </>
   );
